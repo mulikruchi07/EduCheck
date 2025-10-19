@@ -2,19 +2,180 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EduCheck - Document Similarity Checker</title>
+    <title>EduCheck - Document Similarity Scanner</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; display:flex; justify-content:center; align-items:center; height:100vh; }
-        .container { background:#fff; padding:40px 50px; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.1); text-align:center; width:100%; max-width:500px; }
-        h1 { color:#333; margin-bottom:10px; font-size:28px; }
-        p.description { color:#555; margin-bottom:30px; font-size:14px; }
-        input[type="file"] { margin:20px 0; padding:10px; border:1px solid #ccc; border-radius:6px; width:100%; }
-        button { padding:12px 25px; font-size:16px; cursor:pointer; border:none; border-radius:6px; background:#4CAF50; color:white; transition:0.3s; }
-        button:disabled { background:#9CCC9C; cursor:not-allowed; }
-        button:hover:not(:disabled){ background:#45a049; }
-        a.download-link { display:inline-block; margin-top:20px; color:#1e90ff; text-decoration:none; font-weight:500; }
-        .message { margin-top:20px; color:#d9534f; font-weight:500; }
-        .loading { margin-top:20px; color:#333; font-weight:500; }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #00aaff;
+            --background-color: #1a1a2e;
+            --container-bg: #16213e;
+            --text-color: #e0e0e0;
+            --border-color: #0f3460;
+            --success-color: #00ff7f;
+            --error-color: #ff4757;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .container {
+            background: var(--container-bg);
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-color);
+            text-align: center;
+            width: 100%;
+            max-width: 550px;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 36px;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        p.description {
+            color: #a0a0c0;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* Custom File Input */
+        .file-input-wrapper {
+            position: relative;
+            margin: 30px 0;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none; /* Hide the default input */
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 20px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: #a0a0c0;
+        }
+
+        .file-input-wrapper:hover .file-input-label {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        #fileName {
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--success-color);
+        }
+
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: 'Roboto Mono', monospace;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary-color);
+            color: var(--background-color);
+            transition: all 0.3s ease;
+            font-weight: 700;
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        button:disabled {
+            background: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #888;
+        }
+
+        button:hover:not(:disabled){
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--primary-color);
+        }
+
+        a.download-link {
+            display: inline-block;
+            margin-top: 25px;
+            color: var(--success-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 15px;
+            border: 1px solid var(--success-color);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        a.download-link:hover {
+            background: var(--success-color);
+            color: var(--background-color);
+            box-shadow: 0 0 15px var(--success-color);
+        }
+
+        .message {
+            margin-top: 20px;
+            color: var(--error-color);
+            font-weight: 500;
+        }
+
+        /* Loading Bar Styles */
+        .loading-container {
+            margin-top: 25px;
+            display: none; /* Hidden by default */
+        }
+        
+        .progress-bar {
+            width: 100%;
+            background-color: #0f3460;
+            border-radius: 5px;
+            overflow: hidden;
+            height: 10px;
+        }
+
+        .progress-bar-inner {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00aaff, #00ff7f);
+            border-radius: 5px;
+            /* NEW: Long animation that pauses at 95% */
+            animation: realisticProgress 60s ease-out forwards;
+        }
+
+        #loadingText {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #a0a0c0;
+        }
+
+        /* NEW: Animation that slowly reaches 95% and stops */
+        @keyframes realisticProgress {
+            0% { width: 0%; }
+            90% { width: 90%; }
+            100% { width: 95%; } /* Stops at 95% */
+        }
+
     </style>
 </head>
 <body>
@@ -23,19 +184,28 @@
     <p class="description">Upload a ZIP of documents to detect similar content and generate a suspicious pairs report.</p>
 
     <form id="uploadForm" action="/" method="POST" enctype="multipart/form-data">
-        <input type="file" name="zipfile" accept=".zip" required>
+        <div class="file-input-wrapper">
+            <label for="zipfile-input" class="file-input-label" id="fileLabel">Click to Select a .ZIP File</label>
+            <input type="file" id="zipfile-input" name="zipfile" accept=".zip" required>
+            <div id="fileName"></div>
+        </div>
         <br>
-        <button type="submit" id="submitBtn">Check Similarities</button>
+        <button type="submit" id="submitBtn">Scan & Analyze</button>
     </form>
 
-    <div class="loading" id="loading" style="display:none;">Checking similarities... Please wait.</div>
+    <div class="loading-container" id="loading">
+        <div id="loadingText">Initializing scan...</div>
+        <div class="progress-bar">
+            <div class="progress-bar-inner"></div>
+        </div>
+    </div>
 
     {% if message %}
         <div class="message">{{ message }}</div>
     {% endif %}
 
     {% if csv_url %}
-        <a class="download-link" href="{{ csv_url }}" download>Download Suspicious Pairs CSV</a>
+        <a class="download-link" href="{{ csv_url }}" download>Download Suspicious Pairs Report</a>
     {% endif %}
 </div>
 
@@ -43,10 +213,48 @@
     const form = document.getElementById('uploadForm');
     const submitBtn = document.getElementById('submitBtn');
     const loading = document.getElementById('loading');
+    const fileInput = document.getElementById('zipfile-input');
+    const fileLabel = document.getElementById('fileLabel');
+    const fileNameDisplay = document.getElementById('fileName');
+    
+    // NEW: Loading text messages
+    const loadingText = document.getElementById('loadingText');
+    const statusMessages = [
+        "Uploading files...",
+        "Extracting documents...",
+        "Analyzing similarities...",
+        "Comparing file pairs...",
+        "Generating report...",
+        "This is taking a while, please wait..."
+    ];
+    let messageIndex = 0;
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            const fileName = fileInput.files[0].name;
+            fileNameDisplay.textContent = `Selected: ${fileName}`;
+        } else {
+            fileNameDisplay.textContent = '';
+        }
+    });
 
     form.addEventListener('submit', () => {
-        submitBtn.disabled = true;
-        loading.style.display = 'block';
+        if (fileInput.files.length > 0) {
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            // NEW: Start cycling through loading messages
+            loadingText.textContent = statusMessages[messageIndex];
+            messageIndex++;
+
+            setInterval(() => {
+                loadingText.textContent = statusMessages[messageIndex];
+                // Loop back or stay on the last message
+                if (messageIndex < statusMessages.length - 1) {
+                    messageIndex++;
+                }
+            }, 3000); // Change message every 3 seconds
+        }
     });
 </script>
 </body>

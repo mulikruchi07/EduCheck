@@ -1,59 +1,80 @@
-from flask import Flask, request, render_template, send_from_directory
-import os, zipfile, shutil
-from detect_similarities import main as detect_main
+import os
+import pdfplumber
+import docx
+from pathlib import Path
 
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# --- Add these libraries to your requirements.txt if they aren't there ---
+# pip install pdfplumber
+# pip install python-docx
+# ---------------------------------------------------------------------
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+def read_txt(file_path):
+    """Reads text from a .txt file."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return ""
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    csv_url = None
-    if request.method == "POST":
-        zip_file = request.files.get("zipfile")
-        if zip_file:
-            zip_path = os.path.join(UPLOAD_FOLDER, zip_file.filename)
-            zip_file.save(zip_path)
-            extract_path = os.path.join(UPLOAD_FOLDER, "extracted")
-            
-            if os.path.exists(extract_path):
-                shutil.rmtree(extract_path)
-            os.makedirs(extract_path)
-            
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(extract_path)
+def read_pdf(file_path):
+    """Reads text from a .pdf file."""
+    text = ""
+    try:
+        with pdfplumber.open(file_path) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+        return text
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return ""
 
-            # Run your script
-            from detect_similarities import collect_documents
-            import pandas as pd
-            paths, docs = collect_documents(extract_path)
-            from sklearn.feature_extraction.text import TfidfVectorizer
-            from sklearn.metrics.pairwise import cosine_similarity
+def read_docx(file_path):
+    """Reads text from a .docx file."""
+    text = ""
+    try:
+        doc = docx.Document(file_path)
+        for para in doc.paragraphs:
+            text += para.text + "\n"
+        return text
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return ""
 
-            if len(docs) >= 2:
-                vectorizer = TfidfVectorizer(ngram_range=(1,2), min_df=1)
-                X = vectorizer.fit_transform(docs)
-                sim = cosine_similarity(X)
-                n = len(paths)
-                results = []
-                for i in range(n):
-                    for j in range(i+1, n):
-                        score = float(sim[i,j])
-                        if score >= 0.60:
-                            results.append((str(paths[i]), str(paths[j]), round(score,3)))
-                if results:
-                    df = pd.DataFrame(results, columns=["file_a","file_b","score"])
-                    df = df.sort_values("score", ascending=False)
-                    csv_path = os.path.join(UPLOAD_FOLDER, "suspicious_pairs.csv")
-                    df.to_csv(csv_path, index=False)
-                    csv_url = "/uploads/suspicious_pairs.csv"
-    return render_template("index.html", csv_url=csv_url)
+def collect_documents(directory):
+    """
+    Walks through a directory, reads supported files, and returns file paths and their content.
+    """
+    paths = []
+    docs = []
+    
+    # Supported file extensions and their reader functions
+    SUPPORTED_EXTENSIONS = {
+        ".txt": read_txt,
+        ".pdf": read_pdf,
+        ".docx": read_docx,
+    }
 
-@app.route("/uploads/<filename>")
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    print(f"--- Collecting documents from: {directory} ---")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = Path(os.path.join(root, file))
+            file_ext = file_path.suffix.lower()
+
+            if file_ext in SUPPORTED_EXTENSIONS:
+                print(f"Reading: {file_path.name}")
+                # Get the appropriate reader function for the extension
+                reader = SUPPORTED_EXTENSIONS[file_ext]
+                content = reader(file_path)
+                
+                if content:
+                    paths.append(file_path)
+                    docs.append(content)
+            else:
+                print(f"Skipping unsupported file: {file_path.name}")
+
+    print(f"--- Collected {len(docs)} documents. ---")
+    return paths, docs
