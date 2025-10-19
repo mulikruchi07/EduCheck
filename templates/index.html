@@ -58,7 +58,6 @@
             font-size: 14px;
         }
 
-        /* Custom File Input */
         .file-input-wrapper {
             position: relative;
             margin: 30px 0;
@@ -66,7 +65,7 @@
         }
 
         input[type="file"] {
-            display: none; /* Hide the default input */
+            display: none; 
         }
 
         .file-input-label {
@@ -140,10 +139,9 @@
             font-weight: 500;
         }
 
-        /* Loading Bar Styles */
         .loading-container {
             margin-top: 25px;
-            display: none; /* Hidden by default */
+            display: none; 
         }
         
         .progress-bar {
@@ -159,7 +157,6 @@
             height: 100%;
             background: linear-gradient(90deg, #00aaff, #00ff7f);
             border-radius: 5px;
-            /* NEW: Long animation that pauses at 95% */
             animation: realisticProgress 60s ease-out forwards;
         }
 
@@ -169,11 +166,10 @@
             color: #a0a0c0;
         }
 
-        /* NEW: Animation that slowly reaches 95% and stops */
         @keyframes realisticProgress {
             0% { width: 0%; }
             90% { width: 90%; }
-            100% { width: 95%; } /* Stops at 95% */
+            100% { width: 92%; } 
         }
 
     </style>
@@ -204,9 +200,6 @@
         <div class="message">{{ message }}</div>
     {% endif %}
 
-    {% if csv_url %}
-        <a class="download-link" href="{{ csv_url }}" download>Download Suspicious Pairs Report</a>
-    {% endif %}
 </div>
 
 <script>
@@ -243,17 +236,15 @@
             submitBtn.disabled = true;
             loading.style.display = 'block';
 
-            // NEW: Start cycling through loading messages
             loadingText.textContent = statusMessages[messageIndex];
             messageIndex++;
 
             setInterval(() => {
                 loadingText.textContent = statusMessages[messageIndex];
-                // Loop back or stay on the last message
                 if (messageIndex < statusMessages.length - 1) {
                     messageIndex++;
                 }
-            }, 3000); // Change message every 3 seconds
+            }, 3000); 
         }
     });
 </script>
