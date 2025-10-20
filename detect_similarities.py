@@ -1,12 +1,7 @@
 import os
-import pdfplumber
+import PyPDF2  # <-- CHANGED
 import docx
 from pathlib import Path
-
-# --- Add these libraries to your requirements.txt if they aren't there ---
-# pip install pdfplumber
-# pip install python-docx
-# ---------------------------------------------------------------------
 
 def read_txt(file_path):
     """Reads text from a .txt file."""
@@ -18,17 +13,23 @@ def read_txt(file_path):
         return ""
 
 def read_pdf(file_path):
-    """Reads text from a .pdf file."""
+    """Reads text from a .pdf file using PyPDF2 (low memory)."""
     text = ""
     try:
-        with pdfplumber.open(file_path) as pdf:
-            for page in pdf.pages:
+        # PyPDF2 needs the file to be opened in binary mode
+        with open(file_path, 'rb') as f: 
+            reader = PyPDF2.PdfReader(f)
+            for page in reader.pages:
                 page_text = page.extract_text()
                 if page_text:
                     text += page_text + "\n"
         return text
     except Exception as e:
-        print(f"Error reading {file_path}: {e}")
+        # Catch PyPDF2 specific errors
+        if "Bad CRC-32" in str(e):
+            print(f"Skipping corrupted file: {file_path.name}")
+        else:
+            print(f"Error reading {file_path}: {e}")
         return ""
 
 def read_docx(file_path):
@@ -40,6 +41,7 @@ def read_docx(file_path):
             text += para.text + "\n"
         return text
     except Exception as e:
+        # This will catch the 'Bad CRC-32' errors for docx
         print(f"Error reading {file_path}: {e}")
         return ""
 
