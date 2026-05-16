@@ -2,250 +2,609 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EduCheck - Document Similarity Scanner</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
-
-        :root {
-            --primary-color: #00aaff;
-            --background-color: #1a1a2e;
-            --container-bg: #16213e;
-            --text-color: #e0e0e0;
-            --border-color: #0f3460;
-            --success-color: #00ff7f;
-            --error-color: #ff4757;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Roboto Mono', monospace;
-            background: var(--background-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
         }
 
         .container {
-            background: var(--container-bg);
-            padding: 40px 50px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-color);
-            text-align: center;
-            width: 100%;
-            max-width: 550px;
-            border: 1px solid var(--border-color);
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            color: var(--primary-color);
+            color: #333;
+            font-size: 28px;
             margin-bottom: 10px;
-            font-size: 36px;
-            font-weight: 700;
-            text-shadow: 0 0 10px var(--primary-color);
         }
 
-        p.description {
-            color: #a0a0c0;
+        .subtitle {
+            color: #666;
+            font-size: 14px;
             margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
             font-size: 14px;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            margin: 30px 0;
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            padding: 30px;
+            text-align: center;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
-        input[type="file"] {
-            display: none; 
+        .upload-box:hover {
+            border-color: #0066cc;
+            background: #f0f7ff;
         }
 
-        .file-input-label {
+        .upload-box.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .file-name {
+            color: #0066cc;
+            font-weight: 600;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .error-message {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .error-message.show {
             display: block;
-            padding: 20px;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            color: #a0a0c0;
         }
 
-        .file-input-wrapper:hover .file-input-label {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
         }
-
-        #fileName {
-            margin-top: 10px;
-            font-size: 12px;
-            color: var(--success-color);
-        }
-
 
         button {
-            padding: 12px 30px;
-            font-size: 16px;
-            font-family: 'Roboto Mono', monospace;
-            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 14px;
             border: none;
-            border-radius: 6px;
-            background: var(--primary-color);
-            color: var(--background-color);
-            transition: all 0.3s ease;
-            font-weight: 700;
-            box-shadow: 0 0 15px var(--primary-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
-        button:disabled {
-            background: #555;
-            box-shadow: none;
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0052a3;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
             cursor: not-allowed;
-            color: #888;
+            color: #999;
         }
 
-        button:hover:not(:disabled){
-            transform: translateY(-2px);
-            box-shadow: 0 0 25px var(--primary-color);
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
         }
 
-        a.download-link {
-            display: inline-block;
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #b71c1c;
+        }
+
+        .progress-section {
+            display: none;
             margin-top: 25px;
-            color: var(--success-color);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 10px 15px;
-            border: 1px solid var(--success-color);
-            border-radius: 5px;
-            transition: all 0.3s ease;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 6px;
         }
 
-        a.download-link:hover {
-            background: var(--success-color);
-            color: var(--background-color);
-            box-shadow: 0 0 15px var(--success-color);
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-info {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 13px;
+        }
+
+        .progress-stage {
+            font-weight: 600;
+            color: #0066cc;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #0066cc;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .progress-percent {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
         }
 
         .message {
-            margin-top: 20px;
-            color: var(--error-color);
-            font-weight: 500;
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: none;
         }
 
-        .loading-container {
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #81c784;
+        }
+
+        .results-section {
+            display: none;
             margin-top: 25px;
-            display: none; 
-        }
-        
-        .progress-bar {
-            width: 100%;
-            background-color: #0f3460;
-            border-radius: 5px;
-            overflow: hidden;
-            height: 10px;
         }
 
-        .progress-bar-inner {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #00aaff, #00ff7f);
-            border-radius: 5px;
-            animation: realisticProgress 60s ease-out forwards;
+        .results-section.show {
+            display: block;
         }
 
-        #loadingText {
-            margin-top: 10px;
+        .results-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
             font-size: 14px;
-            color: #a0a0c0;
         }
 
-        @keyframes realisticProgress {
-            0% { width: 0%; }
-            90% { width: 90%; }
-            100% { width: 92%; } 
+        .table-wrapper {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        thead {
+            background: #f5f5f5;
+            position: sticky;
+            top: 0;
+        }
+
+        th {
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+            word-break: break-word;
+        }
+
+        tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .result-count {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .btn-download {
+            background: #4caf50;
+            color: white;
+            width: 100%;
+        }
+
+        .btn-download:hover:not(:disabled) {
+            background: #388e3c;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>EduCheck</h1>
-    <p class="description">Upload a ZIP of documents to detect similar content and generate a suspicious pairs report.</p>
+    <p class="subtitle">Upload a ZIP file of documents to detect similar content</p>
 
-    <form id="uploadForm" action="/" method="POST" enctype="multipart/form-data">
-        <div class="file-input-wrapper">
-            <label for="zipfile-input" class="file-input-label" id="fileLabel">Click to Select a .ZIP File</label>
-            <input type="file" id="zipfile-input" name="zipfile" accept=".zip" required>
-            <div id="fileName"></div>
+    <form id="uploadForm">
+        <div class="form-group">
+            <label>Select ZIP File</label>
+            <div class="upload-box" id="uploadBox">
+                <div class="upload-text">Click to select or drag & drop a ZIP file</div>
+                <input type="file" id="zipInput" accept=".zip" />
+                <div class="file-name" id="fileName"></div>
+                <div class="error-message" id="errorFile"></div>
+            </div>
         </div>
-        <br>
-        <button type="submit" id="submitBtn">Scan & Analyze</button>
+
+        <div class="button-group">
+            <button type="button" id="scanBtn" class="btn-primary" disabled>Scan & Analyze</button>
+            <button type="button" id="pauseBtn" class="btn-secondary hidden">Pause</button>
+            <button type="button" id="resumeBtn" class="btn-secondary hidden">Resume</button>
+            <button type="button" id="cancelBtn" class="btn-danger hidden">Cancel</button>
+        </div>
     </form>
 
-    <div class="loading-container" id="loading">
-        <div id="loadingText">Initializing scan...</div>
-        <div class="progress-bar">
-            <div class="progress-bar-inner"></div>
+    <div class="progress-section" id="progressSection">
+        <div class="progress-info">
+            <span class="progress-stage" id="stageText">Initializing...</span>
         </div>
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-percent"><span id="percentText">0</span>%</div>
     </div>
 
-    {% if message %}
-        <div class="message">{{ message }}</div>
-    {% endif %}
+    <div class="message error" id="messageError"></div>
+    <div class="message success" id="messageSuccess"></div>
 
+    <div class="results-section" id="resultsSection">
+        <div class="results-header">Results</div>
+        <div class="result-count">
+            Found <span id="resultCount">0</span> suspicious pairs
+        </div>
+        <div class="table-wrapper">
+            <table id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>File A</th>
+                        <th>File B</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+        </div>
+        <button type="button" class="btn-download" id="downloadBtn">Download CSV</button>
+    </div>
 </div>
 
 <script>
-    const form = document.getElementById('uploadForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loading = document.getElementById('loading');
-    const fileInput = document.getElementById('zipfile-input');
-    const fileLabel = document.getElementById('fileLabel');
-    const fileNameDisplay = document.getElementById('fileName');
-    
-    const loadingText = document.getElementById('loadingText');
-    const statusMessages = [
-        "Uploading files...",
-        "Extracting documents...",
-        "Analyzing similarities...",
-        "Comparing file pairs...",
-        "Generating report...",
-        "This is taking a while, please wait..."
-    ];
-    let messageIndex = 0;
+    const zipInput = document.getElementById('zipInput');
+    const uploadBox = document.getElementById('uploadBox');
+    const fileName = document.getElementById('fileName');
+    const errorFile = document.getElementById('errorFile');
+    const scanBtn = document.getElementById('scanBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const progressSection = document.getElementById('progressSection');
+    const progressFill = document.getElementById('progressFill');
+    const percentText = document.getElementById('percentText');
+    const stageText = document.getElementById('stageText');
+    const messageError = document.getElementById('messageError');
+    const messageSuccess = document.getElementById('messageSuccess');
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsBody = document.getElementById('resultsBody');
+    const resultCount = document.getElementById('resultCount');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length > 0) {
-            const fileName = fileInput.files[0].name;
-            fileNameDisplay.textContent = `Selected: ${fileName}`;
-        } else {
-            fileNameDisplay.textContent = '';
+    let progressInterval = null;
+
+    // File selection
+    uploadBox.addEventListener('click', () => {
+        if (!uploadBox.classList.contains('disabled')) {
+            zipInput.click();
         }
     });
 
-    form.addEventListener('submit', () => {
-        if (fileInput.files.length > 0) {
-            submitBtn.disabled = true;
-            loading.style.display = 'block';
+    zipInput.addEventListener('change', () => {
+        errorFile.classList.remove('show');
+        fileName.textContent = '';
 
-            loadingText.textContent = statusMessages[messageIndex];
-            messageIndex++;
+        if (zipInput.files.length === 0) {
+            scanBtn.disabled = true;
+            return;
+        }
 
-            setInterval(() => {
-                loadingText.textContent = statusMessages[messageIndex];
-                if (messageIndex < statusMessages.length - 1) {
-                    messageIndex++;
+        const file = zipInput.files[0];
+
+        if (!file.name.toLowerCase().endsWith('.zip')) {
+            errorFile.textContent = 'Only ZIP files are allowed';
+            errorFile.classList.add('show');
+            scanBtn.disabled = true;
+            fileName.textContent = '';
+            return;
+        }
+
+        if (file.size > 500 * 1024 * 1024) {
+            errorFile.textContent = 'File size must be less than 500MB';
+            errorFile.classList.add('show');
+            scanBtn.disabled = true;
+            fileName.textContent = '';
+            return;
+        }
+
+        fileName.textContent = 'Selected: ' + file.name;
+        scanBtn.disabled = false;
+    });
+
+    // Scan button
+    scanBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        if (zipInput.files.length === 0) return;
+
+        const file = zipInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        uploadBox.classList.add('disabled');
+        scanBtn.disabled = true;
+        pauseBtn.classList.remove('hidden');
+        cancelBtn.classList.remove('hidden');
+        progressSection.classList.add('show');
+        resultsSection.classList.remove('show');
+        messageError.classList.remove('show');
+        messageSuccess.classList.remove('show');
+
+        try {
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error('Upload failed');
+            }
+
+            startProgressPolling();
+        } catch (error) {
+            showError('Upload failed: ' + error.message);
+            resetUI();
+        }
+    });
+
+    function startProgressPolling() {
+        if (progressInterval) clearInterval(progressInterval);
+
+        progressInterval = setInterval(async () => {
+            try {
+                const response = await fetch('/api/progress');
+                const data = await response.json();
+
+                updateProgress(data);
+
+                if (data.status === 'completed' || data.status === 'error' || data.status === 'cancelled') {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    handleComplete(data);
                 }
-            }, 3000); 
+            } catch (error) {
+                console.error('Progress check failed:', error);
+            }
+        }, 1000);
+    }
+
+    function updateProgress(data) {
+        const stages = {
+            'extracting': 'Extracting ZIP...',
+            'reading_documents': 'Reading documents...',
+            'comparing': 'Comparing files...',
+            'complete': 'Complete!'
+        };
+
+        stageText.textContent = stages[data.stage] || data.stage || 'Processing...';
+        progressFill.style.width = data.percent + '%';
+        percentText.textContent = data.percent;
+    }
+
+    async function handleComplete(data) {
+        if (data.status === 'error') {
+            showError(data.error || 'Processing failed');
+            resetUI();
+            return;
+        }
+
+        if (data.status === 'cancelled') {
+            showError('Processing cancelled');
+            resetUI();
+            return;
+        }
+
+        if (data.status === 'completed') {
+            try {
+                const response = await fetch('/api/results');
+                const data = await response.json();
+
+                displayResults(data.rows);
+                showSuccess('Scan complete! Found ' + data.rows.length + ' suspicious pairs');
+                showNotification(data.rows.length);
+            } catch (error) {
+                console.error('Failed to fetch results:', error);
+                showError('Failed to load results');
+            }
+
+            resetUI();
+        }
+    }
+
+    function displayResults(rows) {
+        resultCount.textContent = rows.length;
+        resultsBody.innerHTML = '';
+
+        rows.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${escapeHtml(row.file_a)}</td>
+                <td>${escapeHtml(row.file_b)}</td>
+                <td>${row.score}</td>
+            `;
+            resultsBody.appendChild(tr);
+        });
+
+        resultsSection.classList.add('show');
+    }
+
+    function showError(msg) {
+        messageError.textContent = msg;
+        messageError.classList.add('show');
+    }
+
+    function showSuccess(msg) {
+        messageSuccess.textContent = msg;
+        messageSuccess.classList.add('show');
+    }
+
+    function showNotification(count) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification('EduCheck', {
+                body: 'Scan complete! Found ' + count + ' suspicious pairs'
+            });
+        }
+    }
+
+    function resetUI() {
+        uploadBox.classList.remove('disabled');
+        pauseBtn.classList.add('hidden');
+        resumeBtn.classList.add('hidden');
+        cancelBtn.classList.add('hidden');
+        scanBtn.disabled = zipInput.files.length === 0;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Pause/Resume/Cancel
+    pauseBtn.addEventListener('click', async () => {
+        await fetch('/api/pause', { method: 'POST' });
+        pauseBtn.classList.add('hidden');
+        resumeBtn.classList.remove('hidden');
+    });
+
+    resumeBtn.addEventListener('click', async () => {
+        await fetch('/api/resume', { method: 'POST' });
+        resumeBtn.classList.add('hidden');
+        pauseBtn.classList.remove('hidden');
+    });
+
+    cancelBtn.addEventListener('click', async () => {
+        await fetch('/api/cancel', { method: 'POST' });
+    });
+
+    // Download
+    downloadBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/csv');
+            if (!response.ok) throw new Error('Download failed');
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'results.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            showError('Download failed: ' + error.message);
         }
     });
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
 </script>
 </body>
 </html>
