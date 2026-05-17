@@ -1,394 +1,392 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduCheck - Document Similarity Scanner</title>
-    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>EduCheck | Academic Similarity Scanner</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @font-face {
+            font-family: 'geist';
+            src: url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         }
-
+        @font-face {
+            font-family: 'jetbrainsMono';
+            src: url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+        }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            min-height: 100vh;
+            font-family: 'geist', sans-serif;
+            background-color: #000000;
         }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .upload-box {
-            border: 2px dashed #ccc;
-            border-radius: 6px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .upload-box:hover {
-            border-color: #0066cc;
-            background: #f0f7ff;
-        }
-
-        .upload-box.disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .upload-box input {
-            display: none;
-        }
-
-        .upload-text {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .file-name {
-            color: #0066cc;
-            font-weight: 600;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .error-message {
-            color: #d32f2f;
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 14px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: #0066cc;
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: #0052a3;
-        }
-
-        .btn-primary:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            color: #999;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: #e0e0e0;
-        }
-
-        .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-danger {
-            background: #d32f2f;
-            color: white;
-        }
-
-        .btn-danger:hover:not(:disabled) {
-            background: #b71c1c;
-        }
-
-        .progress-section {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 6px;
-        }
-
-        .progress-section.show {
-            display: block;
-        }
-
-        .progress-info {
-            margin-bottom: 15px;
-            color: #333;
-            font-size: 13px;
-        }
-
-        .progress-stage {
-            font-weight: 600;
-            color: #0066cc;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: #0066cc;
-            transition: width 0.3s;
-            width: 0%;
-        }
-
-        .progress-percent {
-            font-size: 12px;
-            color: #666;
-            text-align: right;
-        }
-
-        .message {
-            padding: 12px 15px;
-            border-radius: 4px;
-            margin-top: 15px;
-            font-size: 13px;
-            display: none;
-        }
-
-        .message.show {
-            display: block;
-        }
-
-        .message.error {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #ef5350;
-        }
-
-        .message.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #81c784;
-        }
-
-        .results-section {
-            display: none;
-            margin-top: 25px;
-        }
-
-        .results-section.show {
-            display: block;
-        }
-
-        .results-header {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        .table-wrapper {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
-
-        thead {
-            background: #f5f5f5;
-            position: sticky;
-            top: 0;
-        }
-
-        th {
-            padding: 10px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 1px solid #ddd;
-        }
-
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #e0e0e0;
-            color: #666;
-            word-break: break-word;
-        }
-
-        tbody tr:hover {
-            background: #f9f9f9;
-        }
-
-        .result-count {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .btn-download {
-            background: #4caf50;
-            color: white;
-            width: 100%;
-        }
-
-        .btn-download:hover:not(:disabled) {
-            background: #388e3c;
-        }
-
-        .hidden {
-            display: none;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
     </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#07006c",
+                        "inverse-on-surface": "#313030",
+                        "inverse-primary": "#494bd6",
+                        "surface": "#131313",
+                        "surface-bright": "#3a3939",
+                        "surface-variant": "#353534",
+                        "background": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "primary-fixed-dim": "#c0c1ff",
+                        "on-tertiary-fixed": "#301400",
+                        "on-primary": "#1000a9",
+                        "surface-container-low": "#1c1b1b",
+                        "on-secondary": "#233143",
+                        "error-container": "#93000a",
+                        "secondary-container": "#39485a",
+                        "on-background": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "secondary": "#b9c8de",
+                        "on-tertiary-container": "#452000",
+                        "primary": "#c0c1ff",
+                        "tertiary": "#ffb783",
+                        "secondary-fixed": "#d4e4fa",
+                        "on-secondary-container": "#a7b6cc",
+                        "outline-variant": "#464554",
+                        "on-primary-fixed-variant": "#2f2ebe",
+                        "on-primary-container": "#0d0096",
+                        "on-secondary-fixed-variant": "#39485a",
+                        "on-tertiary-fixed-variant": "#703700",
+                        "on-secondary-fixed": "#0d1c2d",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container": "#201f1f",
+                        "tertiary-fixed-dim": "#ffb783",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "tertiary-container": "#d97721",
+                        "secondary-fixed-dim": "#b9c8de",
+                        "primary-fixed": "#e1e0ff",
+                        "tertiary-fixed": "#ffdcc5",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-tertiary": "#4f2500",
+                        "outline": "#908fa0",
+                        "surface-tint": "#c0c1ff",
+                        "on-surface": "#e5e2e1",
+                        "on-surface-variant": "#c7c4d7",
+                        "primary-container": "#8083ff",
+                        "inverse-surface": "#e5e2e1"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "gutter": "16px",
+                        "margin-desktop": "32px",
+                        "xl": "40px",
+                        "lg": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["jetbrainsMono"],
+                        "body-lg": ["geist"],
+                        "headline-md": ["geist"],
+                        "headline-lg-mobile": ["geist"],
+                        "headline-sm": ["geist"],
+                        "label-sm": ["jetbrainsMono"],
+                        "body-sm": ["geist"],
+                        "body-md": ["geist"],
+                        "headline-lg": ["geist"]
+                    },
+                    "fontSize": {
+                        "label-md": ["13px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "600"}],
+                        "headline-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-sm": ["12px", {"lineHeight": "18px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-<div class="container">
-    <h1>EduCheck</h1>
-    <p class="subtitle">Upload a ZIP file of documents to detect similar content</p>
+<body class="bg-background text-on-surface selection:bg-primary-container selection:text-on-primary-container">
 
-    <form id="uploadForm">
-        <div class="form-group">
-            <label>Select ZIP File</label>
-            <div class="upload-box" id="uploadBox">
-                <div class="upload-text">Click to select or drag & drop a ZIP file</div>
-                <input type="file" id="zipInput" accept=".zip" />
-                <div class="file-name" id="fileName"></div>
-                <div class="error-message" id="errorFile"></div>
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-md h-12 fixed top-0 bg-surface border-b border-outline-variant z-50">
+    <div class="flex items-center gap-md">
+        <span class="text-body-lg font-body-lg font-bold text-on-surface">EduCheck</span>
+        <span class="hidden md:block text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Academic Similarity Scanner</span>
+    </div>
+    <div class="flex items-center gap-md">
+        <div class="hidden sm:flex items-center gap-xs text-label-sm font-label-sm text-on-surface-variant">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500" id="statusDot"></span>
+            <span id="statusText">System Status: Ready</span>
+        </div>
+        <div class="h-4 w-[1px] bg-outline-variant mx-xs"></div>
+        <span class="text-label-sm font-label-sm text-on-surface-variant">v2.0 • Apache 2.0 • System Ready</span>
+    </div>
+</header>
+
+<main class="mt-12 min-h-[calc(100vh-48px-64px)] w-full py-xl px-margin-mobile md:px-margin-desktop pb-20">
+    <div class="max-w-[800px] mx-auto space-y-lg">
+        
+        <!-- Message Alerts -->
+        <div id="messageError" class="hidden bg-error-container border border-error text-error p-md rounded font-body-md">
+            <span id="messageErrorText"></span>
+        </div>
+        <div id="messageSuccess" class="hidden bg-surface-container-high border border-tertiary text-tertiary p-md rounded font-body-md">
+            <span id="messageSuccessText"></span>
+        </div>
+
+        <!-- Upload Section -->
+        <section class="space-y-md">
+            <label for="zipInput" class="group relative border-2 border-dashed border-outline-variant bg-surface-container-lowest hover:border-primary hover:bg-surface-container-low transition-all duration-200 cursor-pointer p-xl flex flex-col items-center justify-center gap-md rounded-lg">
+                <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span class="material-symbols-outlined text-primary text-[32px]">upload_file</span>
+                </div>
+                <div class="text-center">
+                    <p class="font-headline-sm text-headline-sm text-on-surface">Drop ZIP archive here</p>
+                    <p class="font-body-md text-body-md text-on-surface-variant mt-xs">or click to browse your local filesystem</p>
+                </div>
+            </label>
+            <div class="flex flex-wrap justify-between items-center gap-sm px-xs">
+                <div class="flex items-center gap-md">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-sm py-xs rounded">Supports: PDF • DOCX • TXT</span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant border-l border-outline-variant pl-md">Max ZIP: 500MB</span>
+                </div>
+                <span class="font-label-sm text-label-sm text-primary italic">Recommended: Structured batch folders</span>
+            </div>
+            <div id="errorFile" class="hidden text-error font-label-sm p-md bg-error-container/20 rounded border border-error"></div>
+            <div id="fileName" class="hidden text-tertiary font-label-sm p-md bg-surface-container-high rounded border border-tertiary"></div>
+        </section>
+
+        <!-- Configuration & Controls -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-lg pt-md">
+            <div class="bg-surface-container border border-outline-variant p-md rounded flex flex-col gap-sm">
+                <label for="thresholdSelect" class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Similarity Threshold</label>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-md">
+                        <span class="font-headline-md text-headline-md text-on-surface" id="thresholdValue">40%</span>
+                        <select id="thresholdSelect" class="bg-surface-container border border-outline-variant text-on-surface font-label-sm py-sm px-md rounded hover:border-primary transition-colors appearance-none cursor-pointer">
+                            <option value="0.20">20%</option>
+                            <option value="0.30">30%</option>
+                            <option value="0.40" selected>40%</option>
+                            <option value="0.50">50%</option>
+                            <option value="0.60">60%</option>
+                            <option value="0.70">70%</option>
+                            <option value="0.80">80%</option>
+                            <option value="0.90">90%</option>
+                        </select>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">Last Scan</p>
+                        <p class="font-body-sm text-body-sm text-on-surface" id="lastScanTime">Never</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col gap-sm">
+                <button id="scanBtn" class="w-full bg-primary text-on-primary font-body-md font-bold py-md rounded hover:bg-opacity-90 transition-opacity flex items-center justify-center gap-sm disabled:opacity-40 disabled:cursor-not-allowed">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    START SCAN
+                </button>
+                <div class="grid grid-cols-3 gap-sm">
+                    <button id="pauseBtn" class="hidden opacity-40 cursor-not-allowed border border-outline-variant text-on-surface font-label-md py-sm rounded bg-surface-container hover:bg-surface-container-high transition-colors disabled:opacity-40">PAUSE</button>
+                    <button id="resumeBtn" class="hidden opacity-40 cursor-not-allowed border border-outline-variant text-on-surface font-label-md py-sm rounded bg-surface-container hover:bg-surface-container-high transition-colors disabled:opacity-40">RESUME</button>
+                    <button id="cancelBtn" class="hidden border border-error text-error font-label-md py-sm rounded bg-surface-container hover:bg-error/10 transition-colors">CANCEL</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress Section -->
+        <section id="progressSection" class="hidden bg-surface-container-low border border-outline-variant p-lg rounded-lg space-y-md">
+            <div class="flex justify-between items-end">
+                <div class="space-y-xs">
+                    <p class="font-label-sm text-label-sm text-primary uppercase tracking-widest" id="stageText">Initializing...</p>
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface" id="stageDescription">Preparing to scan...</h3>
+                </div>
+                <div class="text-right">
+                    <span class="font-headline-lg text-headline-lg text-on-surface" id="percentText">0%</span>
+                </div>
+            </div>
+            <div class="relative w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="progressFill" class="absolute top-0 left-0 h-full bg-primary w-0 transition-all duration-500 ease-out"></div>
+            </div>
+            <div class="flex justify-between items-center pt-xs">
+                <div class="flex items-center gap-xl">
+                    <div class="flex flex-col">
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Elapsed</span>
+                        <span class="font-label-md text-label-md text-on-surface" id="elapsedText">00:00</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">Processed</span>
+                        <span class="font-label-md text-label-md text-on-surface"><span id="filesText">0</span> Files</span>
+                    </div>
+                </div>
+                <span class="font-label-sm text-label-sm text-on-surface-variant italic" id="estimatedTime">Estimated remaining: --:--</span>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultsSummary" class="hidden space-y-md">
+            <div class="bg-surface-container-lowest border border-outline-variant p-md rounded font-label-md text-label-md text-on-primary-fixed-variant leading-relaxed">
+                <div class="flex items-start gap-sm mb-sm text-primary">
+                    <span class="material-symbols-outlined text-[18px]">terminal</span>
+                    <span class="font-bold">SUMMARY REPORT</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-md border-t border-outline-variant pt-md mt-sm">
+                    <div>Files Scanned: <span class="text-on-surface" id="summaryFiles">0</span></div>
+                    <div>Matches Found: <span class="text-error font-bold" id="summaryMatches">0</span></div>
+                    <div>Processing Time: <span class="text-on-surface" id="summaryTime">0s</span></div>
+                </div>
+            </div>
+            <button id="downloadBtn" class="flex items-center gap-sm text-primary font-label-md hover:underline">
+                <span class="material-symbols-outlined text-[16px]">download</span>
+                DOWNLOAD FULL CSV REPORT
+            </button>
+        </section>
+
+        <!-- Results Table -->
+        <section id="resultsSection" class="hidden space-y-md">
+            <div class="flex justify-between items-center">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Similarity Results</h3>
+                <span class="font-label-sm text-label-sm text-on-surface-variant" id="resultCount">0 results</span>
+            </div>
+            <div class="overflow-x-auto border border-outline-variant rounded-lg bg-surface-container-lowest max-h-96 overflow-y-auto">
+                <table class="w-full">
+                    <thead class="bg-surface-container sticky top-0">
+                        <tr class="border-b border-outline-variant">
+                            <th class="text-left p-md font-label-md text-on-surface-variant">File A</th>
+                            <th class="text-left p-md font-label-md text-on-surface-variant">File B</th>
+                            <th class="text-right p-md font-label-md text-on-surface-variant">Similarity</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody" class="divide-y divide-outline-variant">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Recent Scans -->
+        <section id="recentScansSection" class="hidden pt-xl border-t border-outline-variant">
+            <h4 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Recent History</h4>
+            <div id="recentScansList" class="space-y-xs">
+                <div class="text-center py-lg text-on-surface-variant font-body-sm">No recent scans</div>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full bg-surface border-t border-outline-variant py-sm px-md fixed bottom-0">
+    <div class="flex flex-col md:flex-row justify-between items-center max-w-[1280px] mx-auto gap-sm">
+        <span class="text-label-md font-label-md font-bold text-on-surface">© 2026 EduCheck</span>
+        <div class="flex items-center gap-md">
+            <span class="text-body-sm font-body-sm text-on-surface-variant">EduCheck v2.0 • Apache 2.0</span>
+            <div class="flex items-center gap-sm">
+                <a class="text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Documentation</a>
+                <a class="text-label-sm font-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">API</a>
             </div>
         </div>
-
-        <div class="button-group">
-            <button type="button" id="scanBtn" class="btn-primary" disabled>Scan & Analyze</button>
-            <button type="button" id="pauseBtn" class="btn-secondary hidden">Pause</button>
-            <button type="button" id="resumeBtn" class="btn-secondary hidden">Resume</button>
-            <button type="button" id="cancelBtn" class="btn-danger hidden">Cancel</button>
-        </div>
-    </form>
-
-    <div class="progress-section" id="progressSection">
-        <div class="progress-info">
-            <span class="progress-stage" id="stageText">Initializing...</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress-bar-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-percent"><span id="percentText">0</span>%</div>
     </div>
+</footer>
 
-    <div class="message error" id="messageError"></div>
-    <div class="message success" id="messageSuccess"></div>
-
-    <div class="results-section" id="resultsSection">
-        <div class="results-header">Results</div>
-        <div class="result-count">
-            Found <span id="resultCount">0</span> suspicious pairs
-        </div>
-        <div class="table-wrapper">
-            <table id="resultsTable">
-                <thead>
-                    <tr>
-                        <th>File A</th>
-                        <th>File B</th>
-                        <th>Score</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsBody"></tbody>
-            </table>
-        </div>
-        <button type="button" class="btn-download" id="downloadBtn">Download CSV</button>
-    </div>
-</div>
+<!-- Hidden File Input -->
+<input type="file" id="zipInput" accept=".zip" class="hidden" />
 
 <script>
+    // ============================================================
+    // CONFIGURATION & STATE
+    // ============================================================
+    const CONFIG = {
+        STORAGE_KEY: 'educheck_recent_scans',
+        MAX_RECENT: 5
+    };
+
+    let appState = {
+        allResults: [],
+        filteredResults: [],
+        currentThreshold: 0.40,
+        startTime: null,
+        elapsedInterval: null,
+        totalFilesProcessed: 0,
+        totalProcessingTime: 0
+    };
+
+    // ============================================================
+    // DOM ELEMENTS
+    // ============================================================
     const zipInput = document.getElementById('zipInput');
-    const uploadBox = document.getElementById('uploadBox');
+    const uploadLabel = document.querySelector('label[for="zipInput"]');
     const fileName = document.getElementById('fileName');
     const errorFile = document.getElementById('errorFile');
     const scanBtn = document.getElementById('scanBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const resumeBtn = document.getElementById('resumeBtn');
     const cancelBtn = document.getElementById('cancelBtn');
+    
     const progressSection = document.getElementById('progressSection');
     const progressFill = document.getElementById('progressFill');
     const percentText = document.getElementById('percentText');
     const stageText = document.getElementById('stageText');
+    const stageDescription = document.getElementById('stageDescription');
+    const filesText = document.getElementById('filesText');
+    const elapsedText = document.getElementById('elapsedText');
+    const estimatedTime = document.getElementById('estimatedTime');
+    
     const messageError = document.getElementById('messageError');
+    const messageErrorText = document.getElementById('messageErrorText');
     const messageSuccess = document.getElementById('messageSuccess');
+    const messageSuccessText = document.getElementById('messageSuccessText');
+    
     const resultsSection = document.getElementById('resultsSection');
+    const resultsSummary = document.getElementById('resultsSummary');
     const resultsBody = document.getElementById('resultsBody');
     const resultCount = document.getElementById('resultCount');
     const downloadBtn = document.getElementById('downloadBtn');
+    
+    const thresholdSelect = document.getElementById('thresholdSelect');
+    const thresholdValue = document.getElementById('thresholdValue');
+    
+    const summaryFiles = document.getElementById('summaryFiles');
+    const summaryMatches = document.getElementById('summaryMatches');
+    const summaryTime = document.getElementById('summaryTime');
+    
+    const recentScansSection = document.getElementById('recentScansSection');
+    const recentScansList = document.getElementById('recentScansList');
+    
+    const statusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    const lastScanTime = document.getElementById('lastScanTime');
 
-    let progressInterval = null;
+    // ============================================================
+    // FILE UPLOAD HANDLING
+    // ============================================================
+    function openFilePicker() {
+        zipInput.click();
+    }
 
-    // File selection
-    uploadBox.addEventListener('click', () => {
-        if (!uploadBox.classList.contains('disabled')) {
-            zipInput.click();
-        }
-    });
+    uploadLabel.addEventListener('click', openFilePicker);
+    uploadLabel.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        openFilePicker();
+    }, false);
 
     zipInput.addEventListener('change', () => {
-        errorFile.classList.remove('show');
-        fileName.textContent = '';
+        errorFile.classList.add('hidden');
+        fileName.classList.add('hidden');
 
         if (zipInput.files.length === 0) {
             scanBtn.disabled = true;
@@ -399,25 +397,68 @@
 
         if (!file.name.toLowerCase().endsWith('.zip')) {
             errorFile.textContent = 'Only ZIP files are allowed';
-            errorFile.classList.add('show');
+            errorFile.classList.remove('hidden');
             scanBtn.disabled = true;
-            fileName.textContent = '';
             return;
         }
 
         if (file.size > 500 * 1024 * 1024) {
             errorFile.textContent = 'File size must be less than 500MB';
-            errorFile.classList.add('show');
+            errorFile.classList.remove('hidden');
             scanBtn.disabled = true;
-            fileName.textContent = '';
             return;
         }
 
-        fileName.textContent = 'Selected: ' + file.name;
+        fileName.textContent = '✓ ' + file.name;
+        fileName.classList.remove('hidden');
         scanBtn.disabled = false;
     });
 
-    // Scan button
+    // Drag and drop
+    uploadLabel.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadLabel.classList.add('border-primary', 'bg-surface-container-low');
+    });
+
+    uploadLabel.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        uploadLabel.classList.remove('border-primary', 'bg-surface-container-low');
+    });
+
+    uploadLabel.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadLabel.classList.remove('border-primary', 'bg-surface-container-low');
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const dataTransfer = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                dataTransfer.items.add(files[i]);
+            }
+            zipInput.files = dataTransfer.files;
+            const event = new Event('change', { bubbles: true });
+            zipInput.dispatchEvent(event);
+        }
+    });
+
+    // ============================================================
+    // THRESHOLD FILTERING
+    // ============================================================
+    thresholdSelect.addEventListener('change', (e) => {
+        appState.currentThreshold = parseFloat(e.target.value);
+        thresholdValue.textContent = Math.round(parseFloat(e.target.value) * 100) + '%';
+        if (appState.allResults && appState.allResults.length > 0) {
+            filterAndDisplayResults();
+        }
+    });
+
+    function filterResultsByThreshold(results, threshold) {
+        return results.filter(r => r.score >= threshold);
+    }
+
+    // ============================================================
+    // SCAN BUTTON
+    // ============================================================
     scanBtn.addEventListener('click', async (e) => {
         e.preventDefault();
 
@@ -427,14 +468,20 @@
         const formData = new FormData();
         formData.append('file', file);
 
-        uploadBox.classList.add('disabled');
+        appState.startTime = Date.now();
+        appState.totalFilesProcessed = 0;
+        appState.elapsedInterval = setInterval(updateElapsedTime, 1000);
+
         scanBtn.disabled = true;
         pauseBtn.classList.remove('hidden');
         cancelBtn.classList.remove('hidden');
-        progressSection.classList.add('show');
-        resultsSection.classList.remove('show');
-        messageError.classList.remove('show');
-        messageSuccess.classList.remove('show');
+        progressSection.classList.remove('hidden');
+        resultsSection.classList.add('hidden');
+        resultsSummary.classList.add('hidden');
+        messageError.classList.add('hidden');
+        messageSuccess.classList.add('hidden');
+        statusText.textContent = 'System Status: Scanning...';
+        statusDot.classList.add('animate-pulse');
 
         try {
             const response = await fetch('/api/upload', {
@@ -452,6 +499,11 @@
             resetUI();
         }
     });
+
+    // ============================================================
+    // PROGRESS POLLING
+    // ============================================================
+    let progressInterval = null;
 
     function startProgressPolling() {
         if (progressInterval) clearInterval(progressInterval);
@@ -476,18 +528,34 @@
 
     function updateProgress(data) {
         const stages = {
-            'extracting': 'Extracting ZIP...',
+            'extracting': 'Extracting documents...',
             'reading_documents': 'Reading documents...',
-            'comparing': 'Comparing files...',
+            'comparing': 'Comparing for similarity...',
             'complete': 'Complete!'
         };
 
         stageText.textContent = stages[data.stage] || data.stage || 'Processing...';
+        stageDescription.textContent = stages[data.stage] || 'Processing...';
         progressFill.style.width = data.percent + '%';
-        percentText.textContent = data.percent;
+        percentText.textContent = data.percent + '%';
+        filesText.textContent = data.total_files || 0;
+        appState.totalFilesProcessed = data.total_files || 0;
     }
 
+    function updateElapsedTime() {
+        if (!appState.startTime) return;
+        const elapsed = Math.floor((Date.now() - appState.startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        elapsedText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // ============================================================
+    // COMPLETION HANDLING
+    // ============================================================
     async function handleComplete(data) {
+        clearInterval(appState.elapsedInterval);
+
         if (data.status === 'error') {
             showError(data.error || 'Processing failed');
             resetUI();
@@ -505,9 +573,20 @@
                 const response = await fetch('/api/results');
                 const data = await response.json();
 
-                displayResults(data.rows);
-                showSuccess('Scan complete! Found ' + data.rows.length + ' suspicious pairs');
-                showNotification(data.rows.length);
+                appState.allResults = data.rows.map(r => ({
+                    file_a: r.file_a,
+                    file_b: r.file_b,
+                    score: r.score
+                }));
+
+                const totalTime = Math.floor((Date.now() - appState.startTime) / 1000);
+                appState.totalProcessingTime = totalTime;
+
+                displayResults();
+                showSuccess(`Scan complete! Found ${appState.allResults.length} suspicious pairs`);
+                saveRecentScan();
+                loadRecentScans();
+                
             } catch (error) {
                 console.error('Failed to fetch results:', error);
                 showError('Failed to load results');
@@ -517,77 +596,206 @@
         }
     }
 
-    function displayResults(rows) {
-        resultCount.textContent = rows.length;
+    // ============================================================
+    // RESULTS DISPLAY & FILTERING
+    // ============================================================
+    function displayResults() {
+        filterAndDisplayResults();
+        displayResultsSummary();
+        progressSection.classList.add('hidden');
+    }
+
+    function filterAndDisplayResults() {
+        if (!appState.allResults || appState.allResults.length === 0) {
+            return;
+        }
+        
+        appState.filteredResults = filterResultsByThreshold(appState.allResults, appState.currentThreshold);
+        
+        resultCount.textContent = appState.filteredResults.length + ' results';
         resultsBody.innerHTML = '';
 
-        rows.forEach(row => {
+        if (appState.filteredResults.length === 0) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${escapeHtml(row.file_a)}</td>
-                <td>${escapeHtml(row.file_b)}</td>
-                <td>${row.score}</td>
+                <td colspan="3" class="text-center text-on-surface-variant p-lg font-body-md italic">
+                    No results matching threshold
+                </td>
+            `;
+            resultsBody.appendChild(tr);
+            resultsSection.classList.remove('hidden');
+            return;
+        }
+
+        appState.filteredResults.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-outline-variant hover:bg-surface-container-low transition-colors';
+            const scorePercent = Math.round(row.score * 100);
+            tr.innerHTML = `
+                <td class="p-md font-body-sm text-on-surface">${escapeHtml(row.file_a)}</td>
+                <td class="p-md font-body-sm text-on-surface">${escapeHtml(row.file_b)}</td>
+                <td class="p-md text-right"><span class="font-label-md text-error font-bold">${scorePercent}%</span></td>
             `;
             resultsBody.appendChild(tr);
         });
 
-        resultsSection.classList.add('show');
+        resultsSection.classList.remove('hidden');
     }
 
+    function displayResultsSummary() {
+        const totalTime = appState.totalProcessingTime;
+        const minutes = Math.floor(totalTime / 60);
+        const seconds = totalTime % 60;
+
+        summaryFiles.textContent = appState.totalFilesProcessed;
+        summaryMatches.textContent = appState.filteredResults.length;
+        summaryTime.textContent = `${minutes}m ${seconds}s`;
+
+        resultsSummary.classList.remove('hidden');
+    }
+
+    // ============================================================
+    // MESSAGES
+    // ============================================================
     function showError(msg) {
-        messageError.textContent = msg;
-        messageError.classList.add('show');
+        messageErrorText.textContent = msg;
+        messageError.classList.remove('hidden');
     }
 
     function showSuccess(msg) {
-        messageSuccess.textContent = msg;
-        messageSuccess.classList.add('show');
+        messageSuccessText.textContent = msg;
+        messageSuccess.classList.remove('hidden');
     }
 
-    function showNotification(count) {
-        if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('EduCheck', {
-                body: 'Scan complete! Found ' + count + ' suspicious pairs'
-            });
+    // ============================================================
+    // RECENT SCANS (localStorage)
+    // ============================================================
+    function saveRecentScan() {
+        const scans = getRecentScans();
+        const now = new Date();
+        
+        const scan = {
+            timestamp: now.toISOString(),
+            files: appState.totalFilesProcessed,
+            matches: appState.filteredResults.length
+        };
+
+        scans.unshift(scan);
+        scans.splice(CONFIG.MAX_RECENT);
+
+        localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(scans));
+    }
+
+    function getRecentScans() {
+        try {
+            const data = localStorage.getItem(CONFIG.STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            return [];
         }
     }
 
-    function resetUI() {
-        uploadBox.classList.remove('disabled');
-        pauseBtn.classList.add('hidden');
-        resumeBtn.classList.add('hidden');
-        cancelBtn.classList.add('hidden');
-        scanBtn.disabled = zipInput.files.length === 0;
+    function loadRecentScans() {
+        const scans = getRecentScans();
+
+        if (scans.length === 0) {
+            recentScansList.innerHTML = '<div class="text-center py-lg text-on-surface-variant font-body-sm">No recent scans</div>';
+            recentScansSection.classList.add('hidden');
+            lastScanTime.textContent = 'Never';
+            return;
+        }
+
+        // Update last scan time in header
+        const lastScan = scans[0];
+        lastScanTime.textContent = formatRelativeTime(new Date(lastScan.timestamp));
+
+        recentScansList.innerHTML = scans.map((scan, i) => {
+            const date = new Date(scan.timestamp);
+            const timeStr = formatRelativeTime(date);
+
+            return `
+                <div class="flex justify-between items-center py-sm border-b border-outline-variant/30 hover:bg-surface-container-low px-xs transition-colors group">
+                    <div class="flex items-center gap-md">
+                        <span class="font-body-md text-body-md text-on-surface">${timeStr}</span>
+                        <span class="font-label-sm text-label-sm text-on-surface-variant">${scan.files} files processed</span>
+                    </div>
+                    <div class="flex items-center gap-md">
+                        <span class="text-error font-label-sm text-label-sm">${scan.matches} matches</span>
+                        <span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity text-[18px]">open_in_new</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        recentScansSection.classList.remove('hidden');
     }
 
+    function formatRelativeTime(date) {
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+
+        return date.toLocaleDateString();
+    }
+
+    // ============================================================
+    // UTILITIES
+    // ============================================================
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
-    // Pause/Resume/Cancel
+    function resetUI() {
+        scanBtn.disabled = zipInput.files.length === 0;
+        pauseBtn.classList.add('hidden');
+        resumeBtn.classList.add('hidden');
+        cancelBtn.classList.add('hidden');
+        progressSection.classList.add('hidden');
+        statusText.textContent = 'System Status: Ready';
+        statusDot.classList.remove('animate-pulse');
+    }
+
+    // ============================================================
+    // PAUSE / RESUME / CANCEL
+    // ============================================================
     pauseBtn.addEventListener('click', async () => {
         await fetch('/api/pause', { method: 'POST' });
         pauseBtn.classList.add('hidden');
         resumeBtn.classList.remove('hidden');
+        statusText.textContent = 'System Status: Paused';
     });
 
     resumeBtn.addEventListener('click', async () => {
         await fetch('/api/resume', { method: 'POST' });
         resumeBtn.classList.add('hidden');
         pauseBtn.classList.remove('hidden');
+        statusText.textContent = 'System Status: Scanning...';
     });
 
     cancelBtn.addEventListener('click', async () => {
+        clearInterval(appState.elapsedInterval);
         await fetch('/api/cancel', { method: 'POST' });
+        resetUI();
     });
 
-    // Download
+    // ============================================================
+    // DOWNLOAD CSV
+    // ============================================================
     downloadBtn.addEventListener('click', async () => {
         try {
             const response = await fetch('/api/csv');
-            if (!response.ok) throw new Error('Download failed');
+            if (!response.ok) {
+                throw new Error('Download failed');
+            }
 
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
@@ -601,10 +809,15 @@
         }
     });
 
-    // Request notification permission
+    // ============================================================
+    // INITIALIZATION
+    // ============================================================
+    loadRecentScans();
+
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
 </script>
+
 </body>
 </html>
