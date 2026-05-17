@@ -45,12 +45,14 @@ def read_docx(file_path):
         print(f"Error reading {file_path}: {e}")
         return ""
 
-def collect_documents(directory):
+def collect_documents(directory, state=None):
     """
     Walks through a directory, reads supported files, and returns file paths and their content.
+    Supports cancel and pause flags via state object.
     """
     paths = []
     docs = []
+    import time
     
     # Supported file extensions and their reader functions
     SUPPORTED_EXTENSIONS = {
@@ -63,6 +65,16 @@ def collect_documents(directory):
 
     for root, _, files in os.walk(directory):
         for file in files:
+            # Check for cancel flag before processing each file
+            if state and hasattr(state, 'cancel_flag') and state.cancel_flag:
+                print("Document collection cancelled")
+                return paths, docs
+            
+            # Handle pause
+            if state:
+                while hasattr(state, 'pause_flag') and state.pause_flag and not (hasattr(state, 'cancel_flag') and state.cancel_flag):
+                    time.sleep(0.5)
+            
             file_path = Path(os.path.join(root, file))
             file_ext = file_path.suffix.lower()
 
