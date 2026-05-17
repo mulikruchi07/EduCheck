@@ -100,7 +100,7 @@ def process_zip_file(zip_path):
             state.percent = 25
 
         try:
-            paths, docs = collect_documents(extract_path)
+            paths, docs = collect_documents(extract_path, state)
         except Exception as e:
             with state.lock:
                 state.status = "error"
@@ -235,6 +235,22 @@ async def cancel():
     with state.lock:
         state.cancel_flag = True
         state.status = "cancelled"
+    
+    # Clean up extracted files and zip file
+    extract_path = os.path.join(UPLOAD_FOLDER, "extracted")
+    if os.path.exists(extract_path):
+        try:
+            shutil.rmtree(extract_path)
+        except Exception as e:
+            print(f"Error removing extract_path: {e}")
+    
+    zip_path = os.path.join(UPLOAD_FOLDER, "input.zip")
+    if os.path.exists(zip_path):
+        try:
+            os.remove(zip_path)
+        except Exception as e:
+            print(f"Error removing zip_path: {e}")
+    
     return {"ok": True}
 
 @app.get("/api/results")
@@ -263,25 +279,30 @@ async def reset():
 
 @app.get("/api/csv")
 async def download_csv():
-    with state.lock:
-        results = state.results.copy()
+    try:
+        with state.lock:
+            results = state.results.copy()
 
-    if not results:
-        raise HTTPException(status_code=400, detail="No results")
+        if not results:
+            raise HTTPException(status_code=400, detail="No results available")
 
-    output = StringIO()
-    writer = csv.writer(output)
-    writer.writerow(["File A", "File B", "Similarity Score"])
-    writer.writerows(results)
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["File A", "File B", "Similarity Score"])
+        writer.writerows(results)
 
-    csv_str = output.getvalue()
-    csv_bytes = csv_str.encode()
+        csv_str = output.getvalue()
+        csv_bytes = csv_str.encode()
 
-    return StreamingResponse(
-        BytesIO(csv_bytes),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=results.csv"}
-    )
+        return StreamingResponse(
+            BytesIO(csv_bytes),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=results.csv"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to generate CSV")
 
 if __name__ == "__main__":
     import uvicorn
